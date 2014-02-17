@@ -1,0 +1,20 @@
+{
+    "name": "shapeways/shapeways",
+    "description": "PHP client library for interacting with the Shapeways API",
+    "license": "MIT",
+    "authors": [
+        {
+            "name": "Shapeways",
+            "email": "api@shapeways.com"
+        }
+    ],
+    "minimum-stability": "stable",
+    "require": {
+        "ext-oauth": "1.2.*"
+    },
+    "autoload": {
+        "psr-4": {
+            "Shapeways\\": "src/"
+        }
+    }
+}
