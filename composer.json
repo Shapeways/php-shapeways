@@ -1,6 +1,9 @@
 {
     "name": "shapeways/shapeways",
     "description": "PHP client library for interacting with the Shapeways API",
+    "homepage": "https://github.com/Shapeways/php-shapeways",
+    "keywords": ["shapeways", "3d", "modelling", "api"],
+    "type": "library",
     "license": "MIT",
     "authors": [
         {
@@ -10,7 +13,8 @@
     ],
     "minimum-stability": "stable",
     "require": {
-        "ext-oauth": "1.2.*"
+        "ext-oauth": "1.2.*",
+        "php": ">=5.3.0"
     },
     "autoload": {
         "psr-4": {
