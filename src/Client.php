@@ -2,136 +2,181 @@
 
 namespace Shapeways;
 
+class ParameterValidationException extends \Exception{}
+
 class Client{
-    private $callbackUrl;
-    private $consumerKey, $consumerSecret;
-    public $OauthToken, $OauthSecret;
-    public $BaseUrl = "https://api.shapeways.com";
-    public $APIVersion = "v1";
+    private $_callbackUrl;
+    private $_consumerKey, $_consumerSecret;
+    private $_client;
+    public $oauthToken, $oauthSecret;
+    public $baseUrl = 'https://api.shapeways.com';
+    public $apiVersion = 'v1';
 
     public function __construct(
         $consumerKey, $consumerSecret,
         $callbackUrl = NULL, $oauthToken = NULL, $oauthSecret = NULL
     ){
-        $this->consumerKey = $consumerKey;
-        $this->consumerSecret = $consumerSecret;
-        $this->callbackUrl = $callbackUrl;
-        $this->OauthToken = $oauthToken;
-        $this->OauthSecret = $oauthSecret;
+        $this->_consumerKey = $consumerKey;
+        $this->_consumerSecret = $consumerSecret;
+        $this->_callbackUrl = $callbackUrl;
+        $this->oauthToken = $oauthToken;
+        $this->oauthSecret = $oauthSecret;
+        $this->_client = new \Oauth($this->_consumerKey,
+                                  $this->_consumerSecret,
+                                  OAUTH_SIG_METHOD_HMACSHA1,
+                                  OAUTH_AUTH_TYPE_AUTHORIZATION);
+        $this->_client->setToken($this->oauthToken, $this->oauthSecret);
     }
 
-    public function Connect(){
-
+    public function connect(){
+        $url = $this->url('/oauth1/request_token/');
+        $response = $this->_client->getRequestToken($url, $this->_callbackUrl);
+        if($response['authentication_url']){
+            $this->oauthSecret = $response['oauth_token_secret'];
+            $this->_client->setToken($this->oauthToken, $this->oauthSecret);
+            return $response['authentication_url'];
+        }
+        return false;
     }
 
-    public function Verify($token, $verifier){
-
+    public function verify($token, $verifier){
+        $url = $this->url('/oauth1/access_token/');
+        $this->oauthToken = $token;
+        $this->_client->setToken($this->oauthToken, $this->oauthSecret);
+        $response = $this->_client->getAccessToken($url, null, $verifier);
+        if($response['oauth_token'] && $response['oauth_token_secret']){
+            $this->oauthToken = $response['oauth_token'];
+            $this->oauthSecret = $response['oauth_token_secret'];
+            $this->_client->setToken($this->oauthToken, $this->oauthSecret);
+            return true;
+        }
+        return false;
     }
 
-    public function VerifyUrl($url){
+    public function verifyUrl($url){
         $query= parse_url($url, PHP_URL_QUERY);
         $params = array();
         parse_str($query, $params);
-        return $this->Verify($params['oauth_token'], $params['oauth_secret']);
+        return $this->verify($params['oauth_token'], $params['oauth_secret']);
     }
 
-    public function Url($path){
-        $baseUrl = trim($this->BaseUrl, '/');
-        $version = trim($this->APIVersion, '/');
+    public function url($path){
+        $baseUrl = trim($this->baseUrl, '/');
+        $version = trim($this->apiVersion, '/');
         $path = trim($path, '/');
 
         return $baseUrl . '/' . $path . '/' . $version;
     }
 
-    private function get($url){
+    private function _get($url, $params = array()){
+        try{
+            $this->_client->fetch($url, $params, OAUTH_HTTP_METHOD_GET);
+        } catch(\Exception $e){}
+        return json_decode($this->_client->getLastResponse());
+    }
+
+    private function _put($url, $params = array()){
+        try{
+            $this->_client->fetch($url, json_encode($params), OAUTH_HTTP_METHOD_PUT);
+        } catch(\Exception $e){}
+        return json_decode($this->_client->getLastResponse());
+    }
+
+    private function _post($url, $params = array()){
+        try{
+            $this->_client->fetch($url, json_encode($params), OAUTH_HTTP_METHOD_POST);
+        } catch(\Exception $e){}
+        return json_decode($this->_client->getLastResponse());
+    }
+
+    private function _delete($url, $params = array()){
+        try{
+            $this->_client->fetch($url, $params, OAUTH_HTTP_METHOD_DELETE);
+        } catch(\Exception $e){}
+        return json_decode($this->_client->getLastResponse());
+    }
+
+    public function addModel($params){
 
     }
 
-    private function put($url, $body){
+    public function addModelFile($modelId, $params){
 
     }
 
-    private function post($url, $body){
+    public function addModelPhoto($modelId, $params){
 
     }
 
-    private function delete($url){
+    public function addToCart($params){
 
     }
 
-    public function AddModel($params){
-
+    public function deleteModel($modelId){
+        return $this->_delete($this->url('/models/' . $modelId . '/'));
     }
 
-    public function AddModelFile($modelId, $params){
-
+    public function getPrice($params){
+        $required = array('area', 'volume', 'xBoundMin', 'xBoundMax',
+                          'yBoundMin', 'yBoundMax', 'zBoundMin', 'zBoundMax');
+        foreach($required as $key){
+            if(!array_key_exists($key, $params)){
+                throw new ParameterValidationException('Shapeways\Client::getPrice missing required key: ' . $key);
+            }
+        }
+        return $this->_post($this->url('/price/'), $params);
     }
 
-    public function AddModelPhoto($modelId, $params){
-
+    public function getApiInfo(){
+        return $this->_get($this->url('/api/'));
     }
 
-    public function AddToCart($params){
-
+    public function getCart(){
+        return $this->_get($this->url('/orders/cart/'));
     }
 
-    public function DeleteModel($modelId){
-
+    public function getCategories(){
+        return $this->_get($this->url('/categories/'));
     }
 
-    public function GetPrice($params){
-
+    public function getCategory($catId){
+        return $this->_get($this->url('/categories/' . $catId . '/'));
     }
 
-    public function GetApiInfo(){
-
+    public function getMaterial($materialId){
+        return $this->_get($this->url('/materials/' . $materialId . '/'));
     }
 
-    public function GetCart(){
-
+    public function getMaterials(){
+        return $this->_get($this->url('/materials/'));
     }
 
-    public function GetCategories(){
-
+    public function getModel($modelId){
+        return $this->_get($this->url('/models/' . $modelId . '/'));
     }
 
-    public function GetCategory($catId){
-
+    public function getModelFile($modelId, $fileVersion, $includeFile = FALSE){
+        $url = $this->url('/models/' . $modelId . '/files/' . $fileVersion . '/');
+        return $this->_get($url, array('file' => (int)$includeFile));
     }
 
-    public function GetMaterial($materialId){
-
+    public function getModelInfo($modelId){
+        return $this->_get($this->url('/models/' . $modelId . '/info/'));
     }
 
-    public function GetMaterials(){
-
+    public function getModels($page = 1){
+        return $this->_get($this->url('/models/'), array('page' => $page));
     }
 
-    public function GetModel($modelId){
-
+    public function getPrinter($printerId){
+        return $this->_get($this->url('/printers/' . $printerId . '/'));
     }
 
-    public function GetModelFile($modelId, $fileVersion, $includeFile = FALSE){
-
+    public function getPrinters(){
+        return $this->_get($this->url('/printers/'));
     }
 
-    public function GetModelInfo($modelId){
-
-    }
-
-    public function GetModels($page = 1){
-
-    }
-
-    public function GetPrinter($printerId){
-
-    }
-
-    public function GetPrinters(){
-
-    }
-
-    public function UpdateModelInfo($modelId, $params){
+    public function updateModelInfo($modelId, $params){
 
     }
 }
