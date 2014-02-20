@@ -1,9 +1,20 @@
 <?php
+/**
+ * Shapeways API Client
+ * @copyright 2014 Shapeways <api@shapeways.com> (http://developers.shapeways.com)
+ */
 
 namespace Shapeways;
 
+/**
+ * Exception raised when method parameters are not valid
+ */
 class ParameterValidationException extends \Exception{}
 
+/**
+ * API Client for obtaining OAuth token/secret and making
+ * API calls to api.shapeways.com
+ */
 class Client{
     private $_callbackUrl;
     private $_consumerKey, $_consumerSecret;
@@ -12,6 +23,13 @@ class Client{
     public $baseUrl = 'https://api.shapeways.com';
     public $apiVersion = 'v1';
 
+    /**
+     * @param string $consumerKey your app consumer key
+     * @param string $consumerSecret your app consumer secret
+     * @param string|null $callbackUrl your app callback url
+     * @param string|null $oauthToken a users oauth token if it is already known
+     * @param string|null $oauthSecret a users oauth secret if it is already known
+     */
     public function __construct(
         $consumerKey, $consumerSecret,
         $callbackUrl = NULL, $oauthToken = NULL, $oauthSecret = NULL
@@ -28,6 +46,11 @@ class Client{
         $this->_client->setToken($this->oauthToken, $this->oauthSecret);
     }
 
+    /**
+     * Get request token and authentication url to send user to
+     *
+     * @return string|bool the authentication url or false if it failed
+     */
     public function connect(){
         $url = $this->url('/oauth1/request_token/');
         $response = $this->_client->getRequestToken($url, $this->_callbackUrl);
@@ -39,6 +62,9 @@ class Client{
         return false;
     }
 
+    /**
+     *
+     */
     public function verify($token, $verifier){
         $url = $this->url('/oauth1/access_token/');
         $this->oauthToken = $token;
@@ -53,6 +79,9 @@ class Client{
         return false;
     }
 
+    /**
+     *
+     */
     public function verifyUrl($url){
         $query= parse_url($url, PHP_URL_QUERY);
         $params = array();
@@ -60,6 +89,9 @@ class Client{
         return $this->verify($params['oauth_token'], $params['oauth_secret']);
     }
 
+    /**
+     *
+     */
     public function url($path){
         $baseUrl = trim($this->baseUrl, '/');
         $version = trim($this->apiVersion, '/');
@@ -68,6 +100,9 @@ class Client{
         return $baseUrl . '/' . $path . '/' . $version;
     }
 
+    /**
+     *
+     */
     private function _get($url, $params = array()){
         try{
             $this->_client->fetch($url, $params, OAUTH_HTTP_METHOD_GET);
@@ -75,6 +110,9 @@ class Client{
         return json_decode($this->_client->getLastResponse());
     }
 
+    /**
+     *
+     */
     private function _put($url, $params = array()){
         try{
             $this->_client->fetch($url, json_encode($params), OAUTH_HTTP_METHOD_PUT);
@@ -82,6 +120,9 @@ class Client{
         return json_decode($this->_client->getLastResponse());
     }
 
+    /**
+     *
+     */
     private function _post($url, $params = array()){
         try{
             $this->_client->fetch($url, json_encode($params), OAUTH_HTTP_METHOD_POST);
@@ -89,6 +130,9 @@ class Client{
         return json_decode($this->_client->getLastResponse());
     }
 
+    /**
+     *
+     */
     private function _delete($url, $params = array()){
         try{
             $this->_client->fetch($url, $params, OAUTH_HTTP_METHOD_DELETE);
@@ -96,26 +140,44 @@ class Client{
         return json_decode($this->_client->getLastResponse());
     }
 
+    /**
+     *
+     */
     public function addModel($params){
 
     }
 
+    /**
+     *
+     */
     public function addModelFile($modelId, $params){
 
     }
 
+    /**
+     *
+     */
     public function addModelPhoto($modelId, $params){
 
     }
 
+    /**
+     *
+     */
     public function addToCart($params){
 
     }
 
+    /**
+     *
+     */
     public function deleteModel($modelId){
         return $this->_delete($this->url('/models/' . $modelId . '/'));
     }
 
+    /**
+     *
+     */
     public function getPrice($params){
         $required = array('area', 'volume', 'xBoundMin', 'xBoundMax',
                           'yBoundMin', 'yBoundMax', 'zBoundMin', 'zBoundMax');
@@ -127,55 +189,94 @@ class Client{
         return $this->_post($this->url('/price/'), $params);
     }
 
+    /**
+     *
+     */
     public function getApiInfo(){
         return $this->_get($this->url('/api/'));
     }
 
+    /**
+     *
+     */
     public function getCart(){
         return $this->_get($this->url('/orders/cart/'));
     }
 
+    /**
+     *
+     */
     public function getCategories(){
         return $this->_get($this->url('/categories/'));
     }
 
+    /**
+     *
+     */
     public function getCategory($catId){
         return $this->_get($this->url('/categories/' . $catId . '/'));
     }
 
+    /**
+     *
+     */
     public function getMaterial($materialId){
         return $this->_get($this->url('/materials/' . $materialId . '/'));
     }
 
+    /**
+     *
+     */
     public function getMaterials(){
         return $this->_get($this->url('/materials/'));
     }
 
+    /**
+     *
+     */
     public function getModel($modelId){
         return $this->_get($this->url('/models/' . $modelId . '/'));
     }
 
+    /**
+     *
+     */
     public function getModelFile($modelId, $fileVersion, $includeFile = FALSE){
         $url = $this->url('/models/' . $modelId . '/files/' . $fileVersion . '/');
         return $this->_get($url, array('file' => (int)$includeFile));
     }
 
+    /**
+     *
+     */
     public function getModelInfo($modelId){
         return $this->_get($this->url('/models/' . $modelId . '/info/'));
     }
 
+    /**
+     *
+     */
     public function getModels($page = 1){
         return $this->_get($this->url('/models/'), array('page' => $page));
     }
 
+    /**
+     *
+     */
     public function getPrinter($printerId){
         return $this->_get($this->url('/printers/' . $printerId . '/'));
     }
 
+    /**
+     *
+     */
     public function getPrinters(){
         return $this->_get($this->url('/printers/'));
     }
 
+    /**
+     *
+     */
     public function updateModelInfo($modelId, $params){
 
     }
