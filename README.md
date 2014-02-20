@@ -13,7 +13,7 @@ composer install shapeways/shapeways
 <?php
 require './vendor/autoload.php';
 
-$client = new Shapeways/Client( ... );
+$client = new Shapeways\Client( ... );
 ```
 
 ### Git
@@ -26,7 +26,7 @@ git clone git://github.com/Shapeways/php-shapeways.git
 
 require './php-shapeways/src/Client.php';
 
-$client = new Shapeways/Client( ... );
+$client = new Shapeways\Client( ... );
 ```
 
 
