@@ -29,6 +29,9 @@ require './php-shapeways/src/Client.php';
 $client = new Shapeways\Client( ... );
 ```
 
+## Documentation
+https://shapeways.github.io/php-shapeways
+
 
 ## Examples
 See `examples` directory.
