@@ -18,20 +18,20 @@ class ParameterValidationException extends \Exception{}
 class Client{
 
     /**
-     * @var string $_callbackUrl the oauth callback url
+     * @var string $callbackUrl the oauth callback url
      */
-    private $_callbackUrl;
+    public $callbackUrl;
 
     /**
-     * @var string $_consumerKey the oauth consumer key
+     * @var string $consumerKey the oauth consumer key
      * @var string $_consumerSecret the oauth consumer secret
      */
-    private $_consumerKey, $_consumerSecret;
+    public $consumerKey, $consumerSecret;
 
     /**
      * @var string $_client the \OAuth client instance
      */
-    private $_client;
+    public $_client;
 
     /**
      * @var string $oauthToken the oauth token used for requests
@@ -62,13 +62,13 @@ class Client{
         $consumerKey, $consumerSecret,
         $callbackUrl = NULL, $oauthToken = NULL, $oauthSecret = NULL
     ){
-        $this->_consumerKey = $consumerKey;
-        $this->_consumerSecret = $consumerSecret;
-        $this->_callbackUrl = $callbackUrl;
+        $this->consumerKey = $consumerKey;
+        $this->consumerSecret = $consumerSecret;
+        $this->callbackUrl = $callbackUrl;
         $this->oauthToken = $oauthToken;
         $this->oauthSecret = $oauthSecret;
-        $this->_client = new \Oauth($this->_consumerKey,
-                                  $this->_consumerSecret,
+        $this->_client = new \Oauth($this->consumerKey,
+                                  $this->consumerSecret,
                                   OAUTH_SIG_METHOD_HMACSHA1,
                                   OAUTH_AUTH_TYPE_AUTHORIZATION);
         $this->_client->setToken($this->oauthToken, $this->oauthSecret);
