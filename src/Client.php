@@ -81,8 +81,8 @@ class Client{
      */
     public function connect(){
         $url = $this->url('/oauth1/request_token/');
-        $response = $this->_client->getRequestToken($url, $this->_callbackUrl);
-        if($response['authentication_url']){
+        $response = $this->_client->getRequestToken($url, $this->callbackUrl);
+        if(isset($response['authentication_url'])){
             $this->oauthSecret = $response['oauth_token_secret'];
             $this->_client->setToken($this->oauthToken, $this->oauthSecret);
             return $response['authentication_url'];
