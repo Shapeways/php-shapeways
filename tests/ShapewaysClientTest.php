@@ -397,4 +397,66 @@ class ShapewaysClientTest extends PHPUnit_Framework_TestCase{
         $expected->result = 'success';
         $this->assertEquals($result, $expected);
     }
+
+    /**
+     * @expectedException Shapeways\ParameterValidationException
+     * @expectedExceptionCode 0
+     */
+    public function testClientGetPriceNoData(){
+        $priceData = array();
+
+        $this->oauth->expects($this->never())
+            ->method('fetch');
+        $this->oauth->expects($this->never())
+            ->method('getLastResponse');
+
+        $result = $this->client->getPrice($priceData);
+    }
+
+    /**
+     * @expectedException Shapeways\ParameterValidationException
+     * @expectedExceptionCode 0
+     */
+    public function testClientGetPriceMissingKeys(){
+        $priceData = array('area' => 0.5,
+                           'volume' => 0.5,
+                           'xBoundMin' => 0.5,
+                           'yBoundMin' => 0.5,
+                           'zBoundMin' => 0.5);
+
+        $this->oauth->expects($this->never())
+            ->method('fetch');
+        $this->oauth->expects($this->never())
+            ->method('getLastResponse');
+
+        $result = $this->client->getPrice($priceData);
+    }
+
+    public function testClientGetPrice(){
+        $priceData = array('area' => 0.5,
+                           'volume' => 0.5,
+                           'xBoundMin' => -0.5,
+                           'xBoundMax' => 0.5,
+                           'yBoundMin' => -0.5,
+                           'yBoundMax' => 0.5,
+                           'zBoundMin' => -0.5,
+                           'zBoundMax' => 0.5);
+
+        $this->oauth->expects($this->once())
+            ->method('fetch')
+            ->with($this->equalTo('https://api.shapeways.com/price/v1'),
+                   $this->equalTo(json_encode($priceData)),
+                   $this->equalTo(OAUTH_HTTP_METHOD_POST))
+            ->will($this->returnValue(NULL));
+        $this->oauth->expects($this->once())
+            ->method('getLastResponse')
+            ->will($this->returnValue('{"result":"success","price":15.00}'));
+
+        $data = array('some' => 'data', 'key' => 'value');
+        $result = $this->client->getPrice($priceData);
+        $expected = new stdClass;
+        $expected->result = 'success';
+        $expected->price = 15.00;
+        $this->assertEquals($result, $expected);
+    }
 }
