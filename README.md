@@ -6,7 +6,7 @@ PHP module for accessing the [Shapeways](http://www.shapeways.com) api [http://d
 ## Installation
 ### Composer
 ```bash
-composer install shapeways/shapeways
+composer require shapeways/shapeways
 ```
 
 ```php
