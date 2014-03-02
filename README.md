@@ -3,7 +3,7 @@ PHP Shapeways
 
 [![Build Status](https://travis-ci.org/Shapeways/php-shapeways.png?branch=master)](https://travis-ci.org/Shapeways/php-shapeways)
 [![Coverage Status](https://coveralls.io/repos/Shapeways/php-shapeways/badge.png?branch=master)](https://coveralls.io/r/Shapeways/php-shapeways?branch=master)
-[![PHP version](https://badge.fury.io/ph/shapeways%2Fshapeways.png)](http://badge.fury.io/ph/shapeways%2Fshapeways)
+[![PHP version](https://poser.pugx.org/shapeways/shapeways/v/stable.png)](https://packagist.org/packages/shapeways/shapeways)
 [![Shapeways API Version](http://b.repl.ca/v1/shapeways--api-v1-brightgreen.png)](https://developers.shapeways.com/docs)
 
 PHP module for accessing the [Shapeways](http://www.shapeways.com) api [http://developers.shapeways.com](http://developers.shapeways.com).
