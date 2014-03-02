@@ -1,0 +1,18 @@
+language: php
+php:
+  - 5.5
+  - 5.4
+  - 5.3
+
+before_script:
+  - curl -s http://getcomposer.org/installer | php
+  - php composer.phar install --dev --no-interaction
+  - php composer.phar require --no-interaction "satooshi/php-coveralls:0.6.*"
+  - php composer.phar require --no-interaction "phpunit/phpunit:3.7.*"
+
+script:
+  - mkdir -p build/logs
+  - php vendor/bin/phpunit ./tests
+
+after_script:
+  - php vendor/bin/coveralls
