@@ -123,7 +123,7 @@ class Client{
         $query= parse_url($url, PHP_URL_QUERY);
         $params = array();
         parse_str($query, $params);
-        return $this->verify($params['oauth_token'], $params['oauth_secret']);
+        return $this->verify($params['oauth_token'], $params['oauth_verifier']);
     }
 
     /**
