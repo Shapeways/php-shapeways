@@ -459,4 +459,36 @@ class ShapewaysClientTest extends PHPUnit_Framework_TestCase{
         $expected->price = 15.00;
         $this->assertEquals($result, $expected);
     }
+
+    /**
+     * @expectedException Shapeways\ParameterValidationException
+     * @expectedExceptionCode 0
+     */
+    public function testClientAddToCartMissingRequiredKey(){
+        $this->oauth->expects($this->never())
+            ->method('fetch');
+        $this->oauth->expects($this->never())
+            ->method('getLastResponse');
+
+        $result = $this->client->addToCart(array());
+    }
+
+    public function testClientAddToCart(){
+        $cartData = array('modelId' => 1234);
+
+        $this->oauth->expects($this->once())
+            ->method('fetch')
+            ->with($this->equalTo('https://api.shapeways.com/orders/cart/v1'),
+                   $this->equalTo(json_encode($cartData)),
+                   $this->equalTo(OAUTH_HTTP_METHOD_POST))
+            ->will($this->returnValue(NULL));
+        $this->oauth->expects($this->once())
+            ->method('getLastResponse')
+            ->will($this->returnValue('{"result":"success"}'));
+
+        $result = $this->client->addToCart($cartData);
+        $expected = new stdClass;
+        $expected->result = 'success';
+        $this->assertEquals($result, $expected);
+    }
 }
