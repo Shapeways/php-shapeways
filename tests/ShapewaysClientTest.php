@@ -306,4 +306,77 @@ class ShapewaysClientTest extends PHPUnit_Framework_TestCase{
         $expected->model = 'info';
         $this->assertEquals($result, $expected);
     }
+
+    public function testClientGetModels(){
+        $this->oauth->expects($this->once())
+            ->method('fetch')
+            ->with($this->equalTo('https://api.shapeways.com/models/v1'),
+                   $this->equalTo(array('page' => 1)),
+                   $this->equalTo(OAUTH_HTTP_METHOD_GET))
+            ->will($this->returnValue(NULL));
+        $this->oauth->expects($this->once())
+            ->method('getLastResponse')
+            ->will($this->returnValue('{"result":"success","models":["one", "two"]}'));
+
+        $result = $this->client->getModels();
+        $expected = new stdClass;
+        $expected->result = 'success';
+        $expected->models = array('one', 'two');
+        $this->assertEquals($result, $expected);
+    }
+
+    public function testClientGetModelsDifferentPage(){
+        $this->oauth->expects($this->once())
+            ->method('fetch')
+            ->with($this->equalTo('https://api.shapeways.com/models/v1'),
+                   $this->equalTo(array('page' => 5)),
+                   $this->equalTo(OAUTH_HTTP_METHOD_GET))
+            ->will($this->returnValue(NULL));
+        $this->oauth->expects($this->once())
+            ->method('getLastResponse')
+            ->will($this->returnValue('{"result":"success","models":["six", "seven"]}'));
+
+        $result = $this->client->getModels(5);
+        $expected = new stdClass;
+        $expected->result = 'success';
+        $expected->models = array('six', 'seven');
+        $this->assertEquals($result, $expected);
+    }
+
+    public function testClientGetModelFile(){
+        $this->oauth->expects($this->once())
+            ->method('fetch')
+            ->with($this->equalTo('https://api.shapeways.com/models/1234/files/1/v1'),
+                   $this->equalTo(array('file' => '0')),
+                   $this->equalTo(OAUTH_HTTP_METHOD_GET))
+            ->will($this->returnValue(NULL));
+        $this->oauth->expects($this->once())
+            ->method('getLastResponse')
+            ->will($this->returnValue('{"result":"success","key":"value"}'));
+
+        $result = $this->client->getModelFile(1234, 1);
+        $expected = new stdClass;
+        $expected->result = 'success';
+        $expected->key = 'value';
+        $this->assertEquals($result, $expected);
+    }
+
+    public function testClientGetModelFileIncludeFile(){
+        $this->oauth->expects($this->once())
+            ->method('fetch')
+            ->with($this->equalTo('https://api.shapeways.com/models/1234/files/1/v1'),
+                   $this->equalTo(array('file' => '1')),
+                   $this->equalTo(OAUTH_HTTP_METHOD_GET))
+            ->will($this->returnValue(NULL));
+        $this->oauth->expects($this->once())
+            ->method('getLastResponse')
+            ->will($this->returnValue('{"result":"success","key":"value","file":"data"}'));
+
+        $result = $this->client->getModelFile(1234, 1, TRUE);
+        $expected = new stdClass;
+        $expected->result = 'success';
+        $expected->key = 'value';
+        $expected->file = 'data';
+        $this->assertEquals($result, $expected);
+    }
 }
