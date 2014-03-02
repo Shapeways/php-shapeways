@@ -2,3 +2,4 @@
 /docs/
 /coverage/
 /build/
+composer.lock
