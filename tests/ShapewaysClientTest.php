@@ -496,7 +496,7 @@ class ShapewaysClientTest extends PHPUnit_Framework_TestCase{
      * @expectedException Shapeways\ParameterValidationException
      * @expectedExceptionCode 0
      */
-    public function testClientAddModelFileMissingRequiredKey(){
+    public function testClientAddModelPhotoMissingRequiredKey(){
         $this->oauth->expects($this->never())
             ->method('fetch');
         $this->oauth->expects($this->never())
@@ -521,6 +521,43 @@ class ShapewaysClientTest extends PHPUnit_Framework_TestCase{
             ->will($this->returnValue('{"result":"success"}'));
 
         $result = $this->client->addModelPhoto(1234, $photoData);
+        $expected = new stdClass;
+        $expected->result = 'success';
+        $this->assertEquals($result, $expected);
+    }
+
+    /**
+     * @expectedException Shapeways\ParameterValidationException
+     * @expectedExceptionCode 0
+     */
+    public function testClientAddModelFileMissingKeys(){
+        $this->oauth->expects($this->never())
+            ->method('fetch');
+        $this->oauth->expects($this->never())
+            ->method('getLastResponse');
+
+        $result = $this->client->addModelFile(1234, array());
+    }
+
+    public function testClientAddModelFile(){
+        $fileData = array('file' => 'data',
+                          'fileName' => 'name',
+                          'hasRightsToModel' => true,
+                          'acceptTermsAndConditions' => true);
+        $postedData = $fileData;
+        $postedData['file'] = urlencode(base64_encode($fileData['file']));
+
+        $this->oauth->expects($this->once())
+            ->method('fetch')
+            ->with($this->equalTo('https://api.shapeways.com/models/1234/files/v1'),
+                   $this->equalTo(json_encode($postedData)),
+                   $this->equalTo(OAUTH_HTTP_METHOD_POST))
+            ->will($this->returnValue(NULL));
+        $this->oauth->expects($this->once())
+            ->method('getLastResponse')
+            ->will($this->returnValue('{"result":"success"}'));
+
+        $result = $this->client->addModelFile(1234, $fileData);
         $expected = new stdClass;
         $expected->result = 'success';
         $this->assertEquals($result, $expected);
