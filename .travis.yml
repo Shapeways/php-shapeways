@@ -5,6 +5,7 @@ php:
   - 5.3
 
 before_script:
+  - pecl install oauth
   - curl -s http://getcomposer.org/installer | php
   - php composer.phar install --dev --no-interaction
   - php composer.phar require --no-interaction "satooshi/php-coveralls:0.6.*"
