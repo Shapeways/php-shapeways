@@ -379,4 +379,22 @@ class ShapewaysClientTest extends PHPUnit_Framework_TestCase{
         $expected->file = 'data';
         $this->assertEquals($result, $expected);
     }
+
+    public function testClientUpdateModelInfo(){
+        $this->oauth->expects($this->once())
+            ->method('fetch')
+            ->with($this->equalTo('https://api.shapeways.com/models/1234/v1'),
+                   $this->equalTo('{"some":"data","key":"value"}'),
+                   $this->equalTo(OAUTH_HTTP_METHOD_PUT))
+            ->will($this->returnValue(NULL));
+        $this->oauth->expects($this->once())
+            ->method('getLastResponse')
+            ->will($this->returnValue('{"result":"success"}'));
+
+        $data = array('some' => 'data', 'key' => 'value');
+        $result = $this->client->updateModelInfo(1234, $data);
+        $expected = new stdClass;
+        $expected->result = 'success';
+        $this->assertEquals($result, $expected);
+    }
 }
