@@ -562,4 +562,41 @@ class ShapewaysClientTest extends PHPUnit_Framework_TestCase{
         $expected->result = 'success';
         $this->assertEquals($result, $expected);
     }
+
+    /**
+     * @expectedException Shapeways\ParameterValidationException
+     * @expectedExceptionCode 0
+     */
+    public function testClientAddModelMissingKeys(){
+        $this->oauth->expects($this->never())
+            ->method('fetch');
+        $this->oauth->expects($this->never())
+            ->method('getLastResponse');
+
+        $result = $this->client->addModel(array());
+    }
+
+    public function testClientAddModel(){
+        $modelData = array('file' => 'data',
+                           'fileName' => 'name',
+                           'hasRightsToModel' => true,
+                           'acceptTermsAndConditions' => true);
+        $postedData = $modelData;
+        $postedData['file'] = urlencode(base64_encode($modelData['file']));
+
+        $this->oauth->expects($this->once())
+            ->method('fetch')
+            ->with($this->equalTo('https://api.shapeways.com/models/v1'),
+                   $this->equalTo(json_encode($postedData)),
+                   $this->equalTo(OAUTH_HTTP_METHOD_POST))
+            ->will($this->returnValue(NULL));
+        $this->oauth->expects($this->once())
+            ->method('getLastResponse')
+            ->will($this->returnValue('{"result":"success"}'));
+
+        $result = $this->client->addModel($modelData);
+        $expected = new stdClass;
+        $expected->result = 'success';
+        $this->assertEquals($result, $expected);
+    }
 }
