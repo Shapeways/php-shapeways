@@ -51,10 +51,62 @@ class ShapewaysClientTest extends PHPUnit_Framework_TestCase{
     }
 
     public function testClientVerify(){
+        $response = array("oauth_token" => "new_token",
+                          "oauth_token_secret" => "new_secret");
+        $this->oauth->expects($this->once())
+            ->method('getAccessToken')
+            ->with($this->equalTo('https://api.shapeways.com/oauth1/access_token/v1'),
+                   $this->equalTo(NULL),
+                   $this->equalTo("verifier"))
+            ->will($this->returnValue($response));
+        $succeeded = $this->client->verify("token", "verifier");
 
+        $this->assertEquals($succeeded, true);
+        $this->assertEquals($this->client->oauthToken, "new_token");
+        $this->assertEquals($this->client->oauthSecret, "new_secret");
+    }
+
+    public function testClientVerifyInvalidResponse(){
+        $this->oauth->expects($this->once())
+            ->method('getAccessToken')
+            ->with($this->equalTo('https://api.shapeways.com/oauth1/access_token/v1'),
+                   $this->equalTo(NULL),
+                   $this->equalTo("verifier"))
+            ->will($this->returnValue(array()));
+        $succeeded = $this->client->verify("token", "verifier");
+
+        $this->assertEquals($succeeded, false);
     }
 
     public function testClientVerifyUrl(){
+        $response = array("oauth_token" => "new_token",
+                          "oauth_token_secret" => "new_secret");
+        $this->oauth->expects($this->once())
+            ->method('getAccessToken')
+            ->with($this->equalTo('https://api.shapeways.com/oauth1/access_token/v1'),
+                   $this->equalTo(NULL),
+                   $this->equalTo("verifier"))
+            ->will($this->returnValue($response));
+        $succeeded = $this->client->verifyUrl(
+            "http://localhost/callback?oauth_token=token&oauth_verifier=verifier"
+        );
 
+        $this->assertEquals($succeeded, true);
+        $this->assertEquals($this->client->oauthToken, "new_token");
+        $this->assertEquals($this->client->oauthSecret, "new_secret");
+    }
+
+    public function testClientVerifyUrlInvalidResponse(){
+        $this->oauth->expects($this->once())
+            ->method('getAccessToken')
+            ->with($this->equalTo('https://api.shapeways.com/oauth1/access_token/v1'),
+                   $this->equalTo(NULL),
+                   $this->equalTo("verifier"))
+            ->will($this->returnValue(array()));
+        $succeeded = $this->client->verifyUrl(
+            "http://localhost/callback?oauth_token=token&oauth_verifier=verifier"
+        );
+
+        $this->assertEquals($succeeded, false);
     }
 }
