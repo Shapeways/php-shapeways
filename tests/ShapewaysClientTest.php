@@ -235,6 +235,42 @@ class ShapewaysClientTest extends PHPUnit_Framework_TestCase{
         $this->assertEquals($result, $expected);
     }
 
+    public function testClientGetPrinters(){
+        $this->oauth->expects($this->once())
+            ->method('fetch')
+            ->with($this->equalTo('https://api.shapeways.com/printers/v1'),
+                   $this->equalTo(array()),
+                   $this->equalTo(OAUTH_HTTP_METHOD_GET))
+            ->will($this->returnValue(NULL));
+        $this->oauth->expects($this->once())
+            ->method('getLastResponse')
+            ->will($this->returnValue('{"result":"success","printers":["one", "two"]}'));
+
+        $result = $this->client->getPrinters();
+        $expected = new stdClass;
+        $expected->result = 'success';
+        $expected->printers = array('one', 'two');
+        $this->assertEquals($result, $expected);
+    }
+
+    public function testClientGetPrinter(){
+        $this->oauth->expects($this->once())
+            ->method('fetch')
+            ->with($this->equalTo('https://api.shapeways.com/printers/200/v1'),
+                   $this->equalTo(array()),
+                   $this->equalTo(OAUTH_HTTP_METHOD_GET))
+            ->will($this->returnValue(NULL));
+        $this->oauth->expects($this->once())
+            ->method('getLastResponse')
+            ->will($this->returnValue('{"result":"success","key":"value"}'));
+
+        $result = $this->client->getPrinter(200);
+        $expected = new stdClass;
+        $expected->result = 'success';
+        $expected->key = 'value';
+        $this->assertEquals($result, $expected);
+    }
+
     public function testClientGetModel(){
         $this->oauth->expects($this->once())
             ->method('fetch')
