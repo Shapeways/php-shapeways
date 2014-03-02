@@ -102,7 +102,7 @@ class Client{
         $this->oauthToken = $token;
         $this->_client->setToken($this->oauthToken, $this->oauthSecret);
         $response = $this->_client->getAccessToken($url, null, $verifier);
-        if($response['oauth_token'] && $response['oauth_token_secret']){
+        if(isset($response['oauth_token']) && isset($response['oauth_token_secret'])){
             $this->oauthToken = $response['oauth_token'];
             $this->oauthSecret = $response['oauth_token_secret'];
             $this->_client->setToken($this->oauthToken, $this->oauthSecret);
