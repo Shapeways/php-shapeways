@@ -13,8 +13,9 @@
     ],
     "minimum-stability": "stable",
     "require": {
-        "ext-oauth": "1.2.*",
-        "php": ">=5.3.0"
+        "ext-oauth": "2.0.*",
+        "php": ">=5.3.0",
+        "league/oauth2-client": "^2.2"
     },
     "autoload": {
         "psr-4": {
