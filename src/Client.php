@@ -15,8 +15,8 @@ class ParameterValidationException extends \Exception{}
  * API Client for obtaining OAuth token/secret and making
  * API calls to api.shapeways.com
  */
-class Client{
-
+class Client
+{
     /**
      * @var string $callbackUrl the oauth callback url
      */
