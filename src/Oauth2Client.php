@@ -22,7 +22,7 @@ class Oauth2Client
 
   /**
    * This determines where authentication requests will be sent and received by your app.
-   * @var string $callbackUrl the oauth2 callback url
+   * @var string redirectUrl the oauth2 callback url
    */
   public $redirectUrl;
 
@@ -53,20 +53,20 @@ class Oauth2Client
    *
    * @param string $clientId your app consumer key
    * @param string $clientSecret your app consumer secret
-   * @param string|null $callbackUrl your app callback url
+   * @param string|null $redirectUrl your app callback url
    * @param string|null $accessToken a users oauth token if it is already known
    * @param string|null $refreshToken if it is already known
    */
   public function __construct(
     $clientId,
     $clientSecret,
-    $callbackUrl,
+    $redirectUrl,
     $accessToken = null,
     $refreshToken = null
   ) {
     $this->clientId = $clientId;
     $this->clientSecret = $clientSecret;
-    $this->callbackUrl = $callbackUrl;
+    $this->redirectUrl = $redirectUrl;
     $this->accessToken = $accessToken;
     $this->refreshToken = $refreshToken;
   }
