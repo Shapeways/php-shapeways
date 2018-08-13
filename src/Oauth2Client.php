@@ -64,7 +64,7 @@ class Oauth2Client
     $accessToken = null,
     $refreshToken = null
   ) {
-    $this->clientId = $clientSecret;
+    $this->clientId = $clientId;
     $this->clientSecret = $clientSecret;
     $this->callbackUrl = $callbackUrl;
     $this->accessToken = $accessToken;
