@@ -302,7 +302,4 @@ class Oauth2Client
     return json_decode($result);
   }
 
-
-
-
 }
