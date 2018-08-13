@@ -72,11 +72,11 @@ class Oauth2Client
   }
 
   /**
-   * Grand Type 1: Resource owner credentials grant
+   * Grant Type 1: Resource owner credentials grant
    *
    * https://developers.shapeways.com/quick-start#authenticate
    *
-   * Your don't need a redirect url for this grand type
+   * Your don't need a redirect url for this grant type
    *
    * Use "access_token" from result for other API calls
    *
@@ -106,7 +106,7 @@ class Oauth2Client
 
 
   /**
-   * Grand Type 2: Authorization code grant
+   * Grant Type 2: Authorization code grant
    * Step 1 - generate a authorization code
    *
    *
@@ -126,7 +126,7 @@ class Oauth2Client
 
 
   /**
-   * Grand Type 2: Authorization code grant
+   * Grant Type 2: Authorization code grant
    * Step 2 - Generate access token
    *
    *  @link https://developers.shapeways.com/quick-start#authenticate
