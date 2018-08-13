@@ -29,9 +29,9 @@ git clone git://github.com/Shapeways/php-shapeways.git
 ```php
 <?php
 
-require './php-shapeways/src/Client.php';
+require './php-shapeways/src/Oauth2Client.php';
 
-$client = new Shapeways\Oauth2Client( ... );
+$client = new \Shapeways\Oauth2Client( ... );
 ```
 
 ## Documentation
