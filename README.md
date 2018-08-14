@@ -39,7 +39,7 @@ https://shapeways.github.io/php-shapeways
 
 
 ## Examples
-See `examples` directory.
+See `example\Oauth2` directory.
 
 ## License
 ```
