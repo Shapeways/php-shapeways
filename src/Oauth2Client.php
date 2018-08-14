@@ -30,7 +30,7 @@ class Oauth2Client
    * @var string $clientId
    * @var string $clientSecret
    */
-  public $clientId, $clientSecret;
+  private $clientId, $clientSecret;
 
   /**
    * @var string $accessToken the oauth token used for requests
@@ -41,7 +41,7 @@ class Oauth2Client
   /**
    * @var string $baseUrl the api base url used to generate api urls
    */
-  public $baseApiUrl = 'https://api.shapeways.com';
+  private $baseApiUrl = 'https://api.shapeways.com';
 
   /**
    * @var string $apiVersion the api version used to generate api urls
@@ -60,7 +60,7 @@ class Oauth2Client
   public function __construct(
     $clientId,
     $clientSecret,
-    $redirectUrl,
+    $redirectUrl = null,
     $accessToken = null,
     $refreshToken = null
   ) {
@@ -90,18 +90,7 @@ class Oauth2Client
 
     $url = $this->baseApiUrl . '/oauth2/token';
 
-
-    $process = curl_init($url);
-    curl_setopt($process, CURLOPT_USERPWD, $this->clientId . ":" . $this->clientSecret);
-    curl_setopt($process, CURLOPT_TIMEOUT, 30);
-    curl_setopt($process, CURLOPT_POST, 1);
-    curl_setopt($process, CURLOPT_POSTFIELDS, $params);
-    curl_setopt($process, CURLOPT_RETURNTRANSFER, true);
-    $result = curl_exec($process);
-    curl_close($process);
-
-    return json_decode($result);
-
+    return $this->_post($url, $params, null, array(CURLOPT_USERPWD => $this->clientId . ":" . $this->clientSecret));
   }
 
 
@@ -125,7 +114,6 @@ class Oauth2Client
     header('Location: ' . $url);
   }
 
-
   /**
    * Grant Type 2: Authorization code grant
    * Step 2 - Generate access token
@@ -135,36 +123,22 @@ class Oauth2Client
    *
    * Use "access_token" from result for other API calls
    *
+   * @param $code - $_REQUEST['code'] you got from the callback
    * @return array - json decoded api response
+   *
    */
-  public function handleAuthorizationGrantCallback()
+  public function handleAuthorizationGrantCallback($code)
   {
-    $code = $_REQUEST['code'] ?? null;
-    $redirectURL = $this->redirectUrl;
-
-    if ($code === null) {
-      echo "Missing authorization code";
-      exit();
-    }
-    $url = $this->baseApiUrl . '/oauth2/token';
-
-    $data = array(
+    $params = array(
       "grant_type" => "authorization_code",
       "code" => $code,
       "client_id" => $this->clientId,
       "client_secret" => $this->clientSecret,
-      "redirect_uri" => $redirectURL
+      "redirect_uri" => $this->redirectUrl
     );
 
-    $ch = curl_init($url);
-    curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-    curl_setopt($ch, CURLOPT_POST, 1);
-    curl_setopt($ch, CURLOPT_POSTFIELDS, $data);
-
-    $result = curl_exec($ch);
-
-    curl_close($ch);
-    return json_decode($result);
+    $url = $this->baseApiUrl . '/oauth2/token';
+    return $this->_post($url, $params);
   }
 
   /**
@@ -181,27 +155,15 @@ class Oauth2Client
     $required = array('file', 'fileName', 'hasRightsToModel', 'acceptTermsAndConditions');
     foreach ($required as $key) {
       if (!array_key_exists($key, $params)) {
-        throw new ParameterValidationException('Shapeways\Oauth2CurlClient::addModel missing required key: ' . $key);
+        throw new ParameterValidationException('Shapeways\Oauth2CurlClient::uploadModel missing required key: ' . $key);
       }
     }
 
     $params['file'] = rawurlencode(base64_encode($params['file']));
 
-    // json encode
-    $postData = json_encode($params);
-
     $url = $this->baseApiUrl . '/models/v1';
-
-    $ch = curl_init($url);
-    curl_setopt($ch, CURLOPT_HTTPHEADER,
+    return $this->_post($url, $params,
       array('Authorization: Bearer ' . $this->accessToken, 'Content-type: application/json'));
-    curl_setopt($ch, CURLOPT_TIMEOUT, 30);
-    curl_setopt($ch, CURLOPT_POST, 1);
-    curl_setopt($ch, CURLOPT_POSTFIELDS, $postData);
-    curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-    $result = curl_exec($ch);
-    curl_close($ch);
-    return json_decode($result);
   }
 
   /**
@@ -216,14 +178,7 @@ class Oauth2Client
   {
     $url = $this->baseApiUrl . '/models/' . $modelId . '/v1';
 
-    $ch = curl_init($url);
-    curl_setopt($ch, CURLOPT_HTTPHEADER,
-      array('Authorization: Bearer ' . $this->accessToken, 'Content-type: application/json'));
-    curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-    $result = curl_exec($ch);
-    curl_close($ch);
-
-    return json_decode($result);
+    return $this->_get($url);
   }
 
 
@@ -238,14 +193,7 @@ class Oauth2Client
   {
     $url = $this->baseApiUrl . '/materials/v1';
 
-    $ch = curl_init($url);
-    curl_setopt($ch, CURLOPT_HTTPHEADER,
-      array('Authorization: Bearer ' . $this->accessToken, 'Content-type: application/json'));
-    curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-    $result = curl_exec($ch);
-    curl_close($ch);
-
-    return json_decode($result);
+    return $this->_get($url);
   }
 
   /**
@@ -274,24 +222,13 @@ class Oauth2Client
 
     foreach ($required as $key) {
       if (!array_key_exists($key, $params)) {
-        throw new ParameterValidationException('Shapeways\Oauth2CurlClient::addModel missing required key: ' . $key);
+        throw new ParameterValidationException('Shapeways\Oauth2CurlClient::placeOrder missing required key: ' . $key);
       }
     }
 
-    // json encode
-    $postData = json_encode($params);
     $url = $this->baseApiUrl . '/orders/v1';
-
-    $ch = curl_init($url);
-    curl_setopt($ch, CURLOPT_HTTPHEADER,
+    return $this->_post($url, $params,
       array('Authorization: Bearer ' . $this->accessToken, 'Content-type: application/json'));
-    curl_setopt($ch, CURLOPT_TIMEOUT, 30);
-    curl_setopt($ch, CURLOPT_POST, 1);
-    curl_setopt($ch, CURLOPT_POSTFIELDS, $postData);
-    curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-    $result = curl_exec($ch);
-    curl_close($ch);
-    return json_decode($result);
   }
 
 
@@ -306,7 +243,53 @@ class Oauth2Client
   public function getOrderInfo($oderId)
   {
     $url = $this->baseApiUrl . '/orders/' . $oderId . '/v1';
+    return $this->_get($url);
+  }
 
+  /**
+   * Make a POST request to the api server
+   *
+   * @param string $url the api url to request
+   * @param array $params the parameters to send with the request
+   * @param array $header to send with the request
+   * @param array $additionalCurlOpts to send with the request
+   * @return array the json response from the api call
+   */
+  private function _post($url, $params = array(), $header = array(), $additionalCurlOpts = array())
+  {
+    // json encode
+    $postData = json_encode($params);
+
+    $ch = curl_init($url);
+
+    if (!empty($header)) {
+      curl_setopt($ch, CURLOPT_HTTPHEADER, $header);
+    }
+
+    if (!empty($additionalOption)) {
+      foreach ($additionalCurlOpts as $optKey => $optKey) {
+        curl_setopt($ch, $optKey, $header);
+      }
+    }
+
+    curl_setopt($ch, CURLOPT_TIMEOUT, 30);
+    curl_setopt($ch, CURLOPT_POST, 1);
+    curl_setopt($ch, CURLOPT_POSTFIELDS, $postData);
+    curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+    $result = curl_exec($ch);
+    curl_close($ch);
+    return json_decode($result);
+  }
+
+  /**
+   *
+   * Make a GET request to the api server
+   *
+   * @param string $url the api url to request
+   * @return array the json response from the api call
+   */
+  private function _get($url)
+  {
     $ch = curl_init($url);
     curl_setopt($ch, CURLOPT_HTTPHEADER,
       array('Authorization: Bearer ' . $this->accessToken, 'Content-type: application/json'));
