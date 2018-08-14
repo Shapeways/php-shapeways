@@ -34,7 +34,7 @@ try {
   $postFields = [
     'items' => $items,
     'firstName' => 'John',
-    'lastName' => 'Dude',
+    'lastName' => 'Doe',
     'country' => 'US',
     'state' => 'NY',
     'city' => 'New York',

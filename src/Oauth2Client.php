@@ -89,7 +89,7 @@ class Oauth2Client
     );
 
     $url = $this->baseApiUrl . '/oauth2/token';
-    return $this->_post($url, $params, array(), array($this->clientId, $this->clientSecret));
+    return $this->postRequest($url, $params, array(), array($this->clientId, $this->clientSecret));
   }
 
 
@@ -137,7 +137,7 @@ class Oauth2Client
     );
 
     $url = $this->baseApiUrl . '/oauth2/token';
-    return $this->_post($url, $params);
+    return $this->postRequest($url, $params);
   }
 
   /**
@@ -161,7 +161,7 @@ class Oauth2Client
     $params['file'] = rawurlencode(base64_encode($params['file']));
 
     $url = $this->baseApiUrl . '/models/' . $this->apiVersion;
-    return $this->_post($url, $params,
+    return $this->postRequest($url, $params,
       array('Authorization' => 'Bearer ' . $this->accessToken, 'Content-type' => 'application/json'));
   }
 
@@ -177,7 +177,7 @@ class Oauth2Client
   {
     $url = $this->baseApiUrl . '/models/' . $modelId . '/' . $this->apiVersion;
 
-    return $this->_get($url);
+    return $this->getRequest($url);
   }
 
 
@@ -192,7 +192,7 @@ class Oauth2Client
   {
     $url = $this->baseApiUrl . '/materials/' . $this->apiVersion;
 
-    return $this->_get($url);
+    return $this->getRequest($url);
   }
 
   /**
@@ -226,7 +226,7 @@ class Oauth2Client
     }
 
     $url = $this->baseApiUrl . '/orders/' . $this->apiVersion;
-    return $this->_post($url, $params,
+    return $this->postRequest($url, $params,
       array('Authorization' => 'Bearer ' . $this->accessToken, 'Content-type' => 'application/json'));
   }
 
@@ -242,17 +242,19 @@ class Oauth2Client
   public function getOrderInfo($oderId)
   {
     $url = $this->baseApiUrl . '/orders/' . $oderId . '/' . $this->apiVersion;
-    return $this->_get($url);
+    return $this->getRequest($url);
   }
 
   /**
+   * http://docs.guzzlephp.org/en/stable/request-options.html#http-errors
+   *
    * @param $url
    * @param array $params
    * @param array $headers
    * @param array $auth
    * @return mixed
    */
-  private function _post($url, $params = array(), $headers = array(), $auth = array()) {
+  private function postRequest($url, $params = array(), $headers = array(), $auth = array()) {
     $client = new \GuzzleHttp\Client();
     if (array_key_exists('Content-type', $headers) && $headers['Content-type'] == 'application/json') {
       $postOptions = array(\GuzzleHttp\RequestOptions::JSON => $params);
@@ -277,10 +279,12 @@ class Oauth2Client
   }
 
   /**
+   * http://docs.guzzlephp.org/en/stable/request-options.html#http-errors
+   *
    * @param $url
    * @return mixed
    */
-  private function _get($url)
+  private function getRequest($url)
   {
     $client = new \GuzzleHttp\Client();
     try {
