@@ -89,8 +89,7 @@ class Oauth2Client
     );
 
     $url = $this->baseApiUrl . '/oauth2/token';
-
-    return $this->_post($url, $params, null, array(CURLOPT_USERPWD => $this->clientId . ":" . $this->clientSecret));
+    return $this->_post($url, $params, null, array($this->clientId, $this->clientSecret));
   }
 
 
@@ -163,7 +162,7 @@ class Oauth2Client
 
     $url = $this->baseApiUrl . '/models/v1';
     return $this->_post($url, $params,
-      array('Authorization: Bearer ' . $this->accessToken, 'Content-type: application/json'));
+      array('Authorization' => 'Bearer ' . $this->accessToken, 'Content-type' => 'application/json'));
   }
 
   /**
@@ -228,7 +227,7 @@ class Oauth2Client
 
     $url = $this->baseApiUrl . '/orders/v1';
     return $this->_post($url, $params,
-      array('Authorization: Bearer ' . $this->accessToken, 'Content-type: application/json'));
+      array('Authorization' => 'Bearer ' . $this->accessToken, 'Content-type' => 'application/json'));
   }
 
 
@@ -243,7 +242,52 @@ class Oauth2Client
   public function getOrderInfo($oderId)
   {
     $url = $this->baseApiUrl . '/orders/' . $oderId . '/v1';
-    return $this->_get($url);
+    return $this->_getRequest($url);
+  }
+
+  /**
+   * @param $url
+   * @param array $params
+   * @param array $headers
+   * @param array $auth
+   * @return mixed
+   */
+  private function _post($url, $params = array(), $headers = array(), $auth = array()) {
+    $client = new \GuzzleHttp\Client();
+    $postOptions = array('json' => $params);
+
+    if (!empty($headers)) {
+      $postOptions['headers'] =  $headers;
+    }
+
+    if (!empty($auth)) {
+      $postOptions['auth'] = $auth;
+    }
+
+    $res = $client->post($url, $postOptions);
+    //echo $res->getStatusCode(); // "200"
+    //echo $res->getHeader('content-type'); // 'application/json; charset=utf8'
+    $response =  (string) $res->getBody(); // {"type":"User"...'
+    return json_decode($response);
+  }
+
+  /**
+   * @param $url
+   * @return mixed
+   */
+  private function _get($url)
+  {
+    $client = new \GuzzleHttp\Client();
+    $res = $client->get($url, array(
+     'headers'=> array(
+        'Authorization: Bearer ' . $this->accessToken,
+        'Content-type: application/json'
+      )
+    ));
+    //echo $res->getStatusCode(); // "200"
+    //echo $res->getHeader('content-type'); // 'application/json; charset=utf8'
+    $response = (string)$res->getBody(); // {"type":"User"...'
+    return json_decode($response);
   }
 
   /**
@@ -251,25 +295,27 @@ class Oauth2Client
    *
    * @param string $url the api url to request
    * @param array $params the parameters to send with the request
-   * @param array $header to send with the request
-   * @param array $additionalCurlOpts to send with the request
+   * @param array $headers to send with the request
+   * @param array $auth to send with the request
    * @return array the json response from the api call
    */
-  private function _post($url, $params = array(), $header = array(), $additionalCurlOpts = array())
+  private function _postCurl($url, $params = array(), $headers= array(), $auth = array())
   {
     // json encode
     $postData = json_encode($params);
 
     $ch = curl_init($url);
 
-    if (!empty($header)) {
-      curl_setopt($ch, CURLOPT_HTTPHEADER, $header);
+    if (!empty($headers)) {
+      $headers = array();
+      foreach ($headers as $optKey => $optVal) {
+        $headers[] = $optKey.': '.$optVal;
+      }
+      curl_setopt($ch, CURLOPT_HTTPHEADER, $headers);
     }
 
-    if (!empty($additionalOption)) {
-      foreach ($additionalCurlOpts as $optKey => $optKey) {
-        curl_setopt($ch, $optKey, $header);
-      }
+    if (!empty($auth)) {
+      curl_setopt($ch, CURLOPT_USERPWD, $auth[0] . ":" . $auth[1]);
     }
 
     curl_setopt($ch, CURLOPT_TIMEOUT, 30);
@@ -288,7 +334,7 @@ class Oauth2Client
    * @param string $url the api url to request
    * @return array the json response from the api call
    */
-  private function _get($url)
+  private function _getCurl($url)
   {
     $ch = curl_init($url);
     curl_setopt($ch, CURLOPT_HTTPHEADER,
