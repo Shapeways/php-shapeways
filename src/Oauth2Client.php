@@ -89,7 +89,7 @@ class Oauth2Client
     );
 
     $url = $this->baseApiUrl . '/oauth2/token';
-    return $this->_post($url, $params, null, array($this->clientId, $this->clientSecret));
+    return $this->_post($url, $params, array(), array($this->clientId, $this->clientSecret));
   }
 
 
@@ -242,7 +242,7 @@ class Oauth2Client
   public function getOrderInfo($oderId)
   {
     $url = $this->baseApiUrl . '/orders/' . $oderId . '/v1';
-    return $this->_getRequest($url);
+    return $this->_get($url);
   }
 
   /**
@@ -254,7 +254,11 @@ class Oauth2Client
    */
   private function _post($url, $params = array(), $headers = array(), $auth = array()) {
     $client = new \GuzzleHttp\Client();
-    $postOptions = array('json' => $params);
+    if (array_key_exists('Content-type', $headers) && $headers['Content-type'] == 'application/json') {
+      $postOptions = array(\GuzzleHttp\RequestOptions::JSON => $params);
+    } else {
+      $postOptions = array(\GuzzleHttp\RequestOptions::FORM_PARAMS => $params);
+    }
 
     if (!empty($headers)) {
       $postOptions['headers'] =  $headers;
@@ -264,7 +268,8 @@ class Oauth2Client
       $postOptions['auth'] = $auth;
     }
 
-    $res = $client->post($url, $postOptions);
+    $res = $client->request('post', $url, $postOptions);
+
     //echo $res->getStatusCode(); // "200"
     //echo $res->getHeader('content-type'); // 'application/json; charset=utf8'
     $response =  (string) $res->getBody(); // {"type":"User"...'
@@ -278,12 +283,16 @@ class Oauth2Client
   private function _get($url)
   {
     $client = new \GuzzleHttp\Client();
-    $res = $client->get($url, array(
-     'headers'=> array(
-        'Authorization: Bearer ' . $this->accessToken,
-        'Content-type: application/json'
-      )
-    ));
+    try {
+      $res = $client->request('get', $url, array(
+        'headers' => array(
+          'Authorization' => 'Bearer ' . $this->accessToken,
+          'Content-type' =>  'application/json'
+        )
+      ));
+    } catch (\Exception $e) {
+      echo $e->getMessage();
+    }
     //echo $res->getStatusCode(); // "200"
     //echo $res->getHeader('content-type'); // 'application/json; charset=utf8'
     $response = (string)$res->getBody(); // {"type":"User"...'
