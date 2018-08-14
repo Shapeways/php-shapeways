@@ -160,7 +160,7 @@ class Oauth2Client
 
     $params['file'] = rawurlencode(base64_encode($params['file']));
 
-    $url = $this->baseApiUrl . '/models/v1';
+    $url = $this->baseApiUrl . '/models/' . $this->apiVersion;
     return $this->_post($url, $params,
       array('Authorization' => 'Bearer ' . $this->accessToken, 'Content-type' => 'application/json'));
   }
@@ -175,7 +175,7 @@ class Oauth2Client
    */
   public function getModelInfo($modelId)
   {
-    $url = $this->baseApiUrl . '/models/' . $modelId . '/v1';
+    $url = $this->baseApiUrl . '/models/' . $modelId . '/' . $this->apiVersion;
 
     return $this->_get($url);
   }
@@ -190,7 +190,7 @@ class Oauth2Client
    */
   public function getMaterials()
   {
-    $url = $this->baseApiUrl . '/materials/v1';
+    $url = $this->baseApiUrl . '/materials/' . $this->apiVersion;
 
     return $this->_get($url);
   }
@@ -225,7 +225,7 @@ class Oauth2Client
       }
     }
 
-    $url = $this->baseApiUrl . '/orders/v1';
+    $url = $this->baseApiUrl . '/orders/' . $this->apiVersion;
     return $this->_post($url, $params,
       array('Authorization' => 'Bearer ' . $this->accessToken, 'Content-type' => 'application/json'));
   }
@@ -241,7 +241,7 @@ class Oauth2Client
    */
   public function getOrderInfo($oderId)
   {
-    $url = $this->baseApiUrl . '/orders/' . $oderId . '/v1';
+    $url = $this->baseApiUrl . '/orders/' . $oderId . '/' . $this->apiVersion;
     return $this->_get($url);
   }
 
