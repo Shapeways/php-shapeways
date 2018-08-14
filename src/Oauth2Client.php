@@ -118,7 +118,8 @@ class Oauth2Client
    * redirect_uri - This determines where authentication requests will be sent and received by your app.
    * Users will be redirected to this URL when they attempt to use your app.
    */
-  public function generateAccessTokenAuthorizationGrant() {
+  public function generateAccessTokenAuthorizationGrant()
+  {
     $clientId = $this->clientId;
     $url = $this->baseApiUrl . "/oauth2/authorize?response_type=code&client_id=" . $clientId . "&redirect_uri=" . rawurlencode($this->redirectUrl);
     header('Location: ' . $url);
@@ -129,16 +130,17 @@ class Oauth2Client
    * Grant Type 2: Authorization code grant
    * Step 2 - Generate access token
    *
-   *  @link https://developers.shapeways.com/quick-start#authenticate
+   * @link https://developers.shapeways.com/quick-start#authenticate
    *  function for handling call back of generateAccessTokenAuthorizationGrant() call above
    *
    * Use "access_token" from result for other API calls
    *
    * @return array - json decoded api response
    */
-  public function handleAuthorizationGrantCallback() {
+  public function handleAuthorizationGrantCallback()
+  {
     $code = $_REQUEST['code'] ?? null;
-    $redirectURL =  $this->redirectUrl;
+    $redirectURL = $this->redirectUrl;
 
     if ($code === null) {
       echo "Missing authorization code";
@@ -190,16 +192,15 @@ class Oauth2Client
 
     $url = $this->baseApiUrl . '/models/v1';
 
-    $sh = curl_init($url);
-    curl_setopt($sh, CURLOPT_HTTPHEADER,
+    $ch = curl_init($url);
+    curl_setopt($ch, CURLOPT_HTTPHEADER,
       array('Authorization: Bearer ' . $this->accessToken, 'Content-type: application/json'));
-    curl_setopt($sh, CURLOPT_HEADER, 1);
-    curl_setopt($sh, CURLOPT_TIMEOUT, 30);
-    curl_setopt($sh, CURLOPT_POST, 1);
-    curl_setopt($sh, CURLOPT_POSTFIELDS, $postData);
-    curl_setopt($sh, CURLOPT_RETURNTRANSFER, true);
-    $result = curl_exec($sh);
-    curl_close($sh);
+    curl_setopt($ch, CURLOPT_TIMEOUT, 30);
+    curl_setopt($ch, CURLOPT_POST, 1);
+    curl_setopt($ch, CURLOPT_POSTFIELDS, $postData);
+    curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+    $result = curl_exec($ch);
+    curl_close($ch);
     return json_decode($result);
   }
 
@@ -211,8 +212,9 @@ class Oauth2Client
    * @param int $modelId the modelId for the model to retreive
    * @return array the json response from the api call
    */
-  public function getModelInfo($modelId){
-    $url = $this->baseApiUrl . '/models/'. $modelId .'/v1';
+  public function getModelInfo($modelId)
+  {
+    $url = $this->baseApiUrl . '/models/' . $modelId . '/v1';
 
     $ch = curl_init($url);
     curl_setopt($ch, CURLOPT_HTTPHEADER,
@@ -232,7 +234,8 @@ class Oauth2Client
    *
    * @return array the json response from the api call
    */
-  public function getMaterials(){
+  public function getMaterials()
+  {
     $url = $this->baseApiUrl . '/materials/v1';
 
     $ch = curl_init($url);
@@ -256,7 +259,19 @@ class Oauth2Client
    */
   public function placeOrder($params)
   {
-    $required = array('items', 'firstName', 'lastName', 'country', 'state', 'city', 'address1', 'zipCode', 'phoneNumber', 'shippingOption');
+    $required = array(
+      'items',
+      'firstName',
+      'lastName',
+      'country',
+      'state',
+      'city',
+      'address1',
+      'zipCode',
+      'phoneNumber',
+      'shippingOption'
+    );
+
     foreach ($required as $key) {
       if (!array_key_exists($key, $params)) {
         throw new ParameterValidationException('Shapeways\Oauth2CurlClient::addModel missing required key: ' . $key);
@@ -267,16 +282,15 @@ class Oauth2Client
     $postData = json_encode($params);
     $url = $this->baseApiUrl . '/orders/v1';
 
-    $sh = curl_init($url);
-    curl_setopt($sh, CURLOPT_HTTPHEADER,
+    $ch = curl_init($url);
+    curl_setopt($ch, CURLOPT_HTTPHEADER,
       array('Authorization: Bearer ' . $this->accessToken, 'Content-type: application/json'));
-    curl_setopt($sh, CURLOPT_HEADER, 1);
-    curl_setopt($sh, CURLOPT_TIMEOUT, 30);
-    curl_setopt($sh, CURLOPT_POST, 1);
-    curl_setopt($sh, CURLOPT_POSTFIELDS, $postData);
-    curl_setopt($sh, CURLOPT_RETURNTRANSFER, true);
-    $result = curl_exec($sh);
-    curl_close($sh);
+    curl_setopt($ch, CURLOPT_TIMEOUT, 30);
+    curl_setopt($ch, CURLOPT_POST, 1);
+    curl_setopt($ch, CURLOPT_POSTFIELDS, $postData);
+    curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+    $result = curl_exec($ch);
+    curl_close($ch);
     return json_decode($result);
   }
 
@@ -289,8 +303,9 @@ class Oauth2Client
    * @param int $oderId the orderId for the Order to retreive
    * @return array the json response from the api call
    */
-  public function getOrderInfo($oderId){
-    $url = $this->baseApiUrl . '/orders/'. $oderId .'/v1';
+  public function getOrderInfo($oderId)
+  {
+    $url = $this->baseApiUrl . '/orders/' . $oderId . '/v1';
 
     $ch = curl_init($url);
     curl_setopt($ch, CURLOPT_HTTPHEADER,
