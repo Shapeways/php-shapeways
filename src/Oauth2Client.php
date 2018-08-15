@@ -44,9 +44,9 @@ class Oauth2Client
   private $baseApiUrl = 'https://api.shapeways.com';
 
   /**
-   * @var string $apiVersion the api version used to generate api urls
+   * @var string $endpointVersion the default API endpoint version used to generate api urls
    */
-  public $apiVersion = 'v1';
+  public $endpointVersion = 'v1';
 
   /**
    * Create a new \Shapeways\Oauth2CurlClient
@@ -160,7 +160,7 @@ class Oauth2Client
 
     $params['file'] = rawurlencode(base64_encode($params['file']));
 
-    $url = $this->baseApiUrl . '/models/' . $this->apiVersion;
+    $url = $this->baseApiUrl . '/models/' . $this->endpointVersion;
     return $this->postRequest($url, $params,
       array('Authorization' => 'Bearer ' . $this->accessToken, 'Content-type' => 'application/json'));
   }
@@ -175,7 +175,7 @@ class Oauth2Client
    */
   public function getModelInfo($modelId)
   {
-    $url = $this->baseApiUrl . '/models/' . $modelId . '/' . $this->apiVersion;
+    $url = $this->baseApiUrl . '/models/' . $modelId . '/' . $this->endpointVersion;
 
     return $this->getRequest($url);
   }
@@ -190,7 +190,7 @@ class Oauth2Client
    */
   public function getMaterials()
   {
-    $url = $this->baseApiUrl . '/materials/' . $this->apiVersion;
+    $url = $this->baseApiUrl . '/materials/' . $this->endpointVersion;
 
     return $this->getRequest($url);
   }
@@ -225,7 +225,7 @@ class Oauth2Client
       }
     }
 
-    $url = $this->baseApiUrl . '/orders/' . $this->apiVersion;
+    $url = $this->baseApiUrl . '/orders/' . $this->endpointVersion;
     return $this->postRequest($url, $params,
       array('Authorization' => 'Bearer ' . $this->accessToken, 'Content-type' => 'application/json'));
   }
@@ -241,7 +241,7 @@ class Oauth2Client
    */
   public function getOrderInfo($oderId)
   {
-    $url = $this->baseApiUrl . '/orders/' . $oderId . '/' . $this->apiVersion;
+    $url = $this->baseApiUrl . '/orders/' . $oderId . '/' . $this->endpointVersion;
     return $this->getRequest($url);
   }
 
