@@ -13,7 +13,7 @@
     ],
     "minimum-stability": "stable",
     "require": {
-        "ext-oauth": "1.2.*",
+        "ext-oauth": ">=1.2.0",
         "php": ">=5.5.0",
         "guzzlehttp/guzzle": "~6.0"
     },
