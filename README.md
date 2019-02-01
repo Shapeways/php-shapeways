@@ -35,7 +35,7 @@ $client = new \Shapeways\Oauth2Client( ... );
 ```
 
 ## Documentation
-https://shapeways.github.io/php-shapeways
+https://developers.shapeways.com/quick-start#getting-started
 
 
 ## Examples
