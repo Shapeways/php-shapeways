@@ -44,9 +44,9 @@ class Oauth2Client
   private $baseApiUrl = 'https://api.shapeways.com';
 
   /**
-   * @var string $endpointVersion the default API endpoint version used to generate api urls
+   * @var string $apiVersion the api version used to generate api urls
    */
-  public $endpointVersion = 'v1';
+  public $apiVersion = 'v1';
 
   /**
    * Create a new \Shapeways\Oauth2CurlClient
@@ -56,19 +56,24 @@ class Oauth2Client
    * @param string|null $redirectUrl your app callback url
    * @param string|null $accessToken a users oauth token if it is already known
    * @param string|null $refreshToken if it is already known
+   * @param string|null $baseApiUrl if it you want to use a different baseApiUrl
    */
   public function __construct(
     $clientId,
     $clientSecret,
     $redirectUrl = null,
     $accessToken = null,
-    $refreshToken = null
+    $refreshToken = null,
+    $baseApiUrl = null
   ) {
     $this->clientId = $clientId;
     $this->clientSecret = $clientSecret;
     $this->redirectUrl = $redirectUrl;
     $this->accessToken = $accessToken;
     $this->refreshToken = $refreshToken;
+    if ($baseApiUrl !== null) {
+      $this->baseApiUrl = $baseApiUrl;
+    }
   }
 
   /**
@@ -80,7 +85,7 @@ class Oauth2Client
    *
    * Use "access_token" from result for other API calls
    *
-   * @return array - json decoded api response
+   * @return object - json decoded api response
    */
   public function generateAccessTokenClientCredentialGrant()
   {
@@ -89,7 +94,7 @@ class Oauth2Client
     );
 
     $url = $this->baseApiUrl . '/oauth2/token';
-    return $this->postRequest($url, $params, array(), array($this->clientId, $this->clientSecret));
+    return $this->_post($url, $params, array(), array($this->clientId, $this->clientSecret));
   }
 
 
@@ -137,7 +142,7 @@ class Oauth2Client
     );
 
     $url = $this->baseApiUrl . '/oauth2/token';
-    return $this->postRequest($url, $params);
+    return $this->_post($url, $params);
   }
 
   /**
@@ -160,8 +165,8 @@ class Oauth2Client
 
     $params['file'] = rawurlencode(base64_encode($params['file']));
 
-    $url = $this->baseApiUrl . '/models/' . $this->endpointVersion;
-    return $this->postRequest($url, $params,
+    $url = $this->baseApiUrl . '/models/' . $this->apiVersion;
+    return $this->_post($url, $params,
       array('Authorization' => 'Bearer ' . $this->accessToken, 'Content-type' => 'application/json'));
   }
 
@@ -175,9 +180,9 @@ class Oauth2Client
    */
   public function getModelInfo($modelId)
   {
-    $url = $this->baseApiUrl . '/models/' . $modelId . '/' . $this->endpointVersion;
+    $url = $this->baseApiUrl . '/models/' . $modelId . '/' .$this->apiVersion;
 
-    return $this->getRequest($url);
+    return $this->_get($url);
   }
 
 
@@ -190,9 +195,9 @@ class Oauth2Client
    */
   public function getMaterials()
   {
-    $url = $this->baseApiUrl . '/materials/' . $this->endpointVersion;
+    $url = $this->baseApiUrl . '/materials/'. $this->apiVersion;
 
-    return $this->getRequest($url);
+    return $this->_get($url);
   }
 
   /**
@@ -225,8 +230,8 @@ class Oauth2Client
       }
     }
 
-    $url = $this->baseApiUrl . '/orders/' . $this->endpointVersion;
-    return $this->postRequest($url, $params,
+    $url = $this->baseApiUrl . '/orders/' . $this->apiVersion;
+    return $this->_post($url, $params,
       array('Authorization' => 'Bearer ' . $this->accessToken, 'Content-type' => 'application/json'));
   }
 
@@ -241,20 +246,18 @@ class Oauth2Client
    */
   public function getOrderInfo($oderId)
   {
-    $url = $this->baseApiUrl . '/orders/' . $oderId . '/' . $this->endpointVersion;
-    return $this->getRequest($url);
+    $url = $this->baseApiUrl . '/orders/' . $oderId . '/' . $this->apiVersion;
+    return $this->_get($url);
   }
 
   /**
-   * http://docs.guzzlephp.org/en/stable/request-options.html#http-errors
-   *
    * @param $url
    * @param array $params
    * @param array $headers
    * @param array $auth
    * @return mixed
    */
-  private function postRequest($url, $params = array(), $headers = array(), $auth = array()) {
+  private function _post($url, $params = array(), $headers = array(), $auth = array()) {
     $client = new \GuzzleHttp\Client();
     if (array_key_exists('Content-type', $headers) && $headers['Content-type'] == 'application/json') {
       $postOptions = array(\GuzzleHttp\RequestOptions::JSON => $params);
@@ -279,12 +282,10 @@ class Oauth2Client
   }
 
   /**
-   * http://docs.guzzlephp.org/en/stable/request-options.html#http-errors
-   *
    * @param $url
    * @return mixed
    */
-  private function getRequest($url)
+  private function _get($url)
   {
     $client = new \GuzzleHttp\Client();
     try {
