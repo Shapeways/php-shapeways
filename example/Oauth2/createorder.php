@@ -42,7 +42,7 @@ try {
     'address2' => 'Suite 900',
     'zipCode' => '10016',
     'phoneNumber' => '1234567890',
-    'paymentMethod' => 'credit_card',
+    'paymentMethod' => 'credit_card', // or 'manual' to skip credit card check
     'shippingOption' => 'Cheapest'
   ];
 

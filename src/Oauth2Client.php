@@ -185,6 +185,19 @@ class Oauth2Client
     return $this->_get($url);
   }
 
+  /**
+   * Get list of models
+   *
+   * @link https://developers.shapeways.com/api-reference#Models
+   *
+   * @return array the json response from the api call
+   */
+  public function getModels()
+  {
+    $url = $this->baseApiUrl . '/models/' .$this->apiVersion;
+
+    return $this->_get($url);
+  }
 
   /**
    * Get a list of materials
@@ -241,12 +254,26 @@ class Oauth2Client
    *
    * @link https://developers.shapeways.com/api-reference#Order
    *
-   * @param int $oderId the orderId for the Order to retreive
+   * @param int $orderId the orderId for the Order to retreive
    * @return array the json response from the api call
    */
-  public function getOrderInfo($oderId)
+  public function getOrderInfo($orderId)
   {
-    $url = $this->baseApiUrl . '/orders/' . $oderId . '/' . $this->apiVersion;
+    $url = $this->baseApiUrl . '/orders/' . $orderId . '/' . $this->apiVersion;
+    return $this->_get($url);
+  }
+
+  /**
+   * Get list of orders
+   *
+   * @link https://developers.shapeways.com/api-reference#Orders
+   *
+   * @return array the json response from the api call
+   */
+  public function getOrders()
+  {
+    $url = $this->baseApiUrl . '/orders/' .$this->apiVersion;
+
     return $this->_get($url);
   }
 
@@ -258,6 +285,7 @@ class Oauth2Client
    * @return mixed
    */
   private function _post($url, $params = array(), $headers = array(), $auth = array()) {
+    $url = $this->urlWithParameters($url);
     $client = new \GuzzleHttp\Client();
     if (array_key_exists('Content-type', $headers) && $headers['Content-type'] == 'application/json') {
       $postOptions = array(\GuzzleHttp\RequestOptions::JSON => $params);
@@ -273,6 +301,8 @@ class Oauth2Client
       $postOptions['auth'] = $auth;
     }
 
+    $postOptions['verify'] = false;
+
     $res = $client->request('post', $url, $postOptions);
 
     //echo $res->getStatusCode(); // "200"
@@ -287,9 +317,11 @@ class Oauth2Client
    */
   private function _get($url)
   {
+    $url = $this->urlWithParameters($url);
     $client = new \GuzzleHttp\Client();
     try {
       $res = $client->request('get', $url, array(
+        'verify' => false,
         'headers' => array(
           'Authorization' => 'Bearer ' . $this->accessToken,
           'Content-type' =>  'application/json'
@@ -315,6 +347,7 @@ class Oauth2Client
    */
   private function _postCurl($url, $params = array(), $headers= array(), $auth = array())
   {
+    $url = $this->urlWithParameters($url);
     // json encode
     $postData = json_encode($params);
 
@@ -332,6 +365,7 @@ class Oauth2Client
       curl_setopt($ch, CURLOPT_USERPWD, $auth[0] . ":" . $auth[1]);
     }
 
+    curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
     curl_setopt($ch, CURLOPT_TIMEOUT, 30);
     curl_setopt($ch, CURLOPT_POST, 1);
     curl_setopt($ch, CURLOPT_POSTFIELDS, $postData);
@@ -350,7 +384,9 @@ class Oauth2Client
    */
   private function _getCurl($url)
   {
+    $url = $this->urlWithParameters($url);
     $ch = curl_init($url);
+    curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
     curl_setopt($ch, CURLOPT_HTTPHEADER,
       array('Authorization: Bearer ' . $this->accessToken, 'Content-type: application/json'));
     curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
@@ -358,6 +394,17 @@ class Oauth2Client
     curl_close($ch);
 
     return json_decode($result);
+  }
+
+  private function urlWithParameters($url) {
+    if (!empty($_SERVER['QUERY_STRING'])) {
+      $prefix = '&';
+      if(strpos($url,'?') === false) {
+        $prefix = '?';
+      }
+      $url = $url . $prefix . $_SERVER['QUERY_STRING'];
+    }
+    return $url;
   }
 
 }

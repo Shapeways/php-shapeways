@@ -1,14 +1,7 @@
 <?php
-/**
- * Created by PhpStorm.
- * User: johnny
- * Date: 8/14/18
- * Time: 3:46 PM
- */
 require './common.php';
 
 $modelId = 'YOUR_MODEL_ID';  // replace this
-
 
 // generate an access token
 try {
@@ -22,7 +15,7 @@ try {
 }
 
 try {
-  $model = $client->getModels();
+  $model = $client->getModelInfo($modelId);
 } catch (\Exception $e) {
   // printing error on screen
   echo 'Exception: '. $e->getMessage();
