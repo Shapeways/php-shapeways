@@ -384,7 +384,7 @@ class Oauth2Client
    * @param string $url the api url to request
    * @return array the json response from the api call
    *
-   * * @deprecated Use Shapeways\Oauth2Client::_get()
+   * @deprecated Use Shapeways\Oauth2Client::_get()
    */
   private function _getCurl($url)
   {
