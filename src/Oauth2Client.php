@@ -41,7 +41,7 @@ class Oauth2Client
   /**
    * @var string $baseUrl the api base url used to generate api urls
    */
-  private $baseApiUrl = 'https://api.shapeways.com';
+  protected $baseApiUrl = 'https://api.shapeways.com';
 
   /**
    * @var string $apiVersion the api version used to generate api urls
@@ -315,7 +315,7 @@ class Oauth2Client
    * @param $url
    * @return mixed
    */
-  private function _get($url)
+  protected function _get($url)
   {
     $url = $this->urlWithParameters($url);
     $client = new \GuzzleHttp\Client();
@@ -328,7 +328,7 @@ class Oauth2Client
         )
       ));
     } catch (\Exception $e) {
-      echo $e->getMessage();
+      return json_encode($e->getMessage());
     }
     //echo $res->getStatusCode(); // "200"
     //echo $res->getHeader('content-type'); // 'application/json; charset=utf8'
@@ -344,6 +344,8 @@ class Oauth2Client
    * @param array $headers to send with the request
    * @param array $auth to send with the request
    * @return array the json response from the api call
+   *
+   * @deprecated Use Shapeways\Oauth2Client::_post()
    */
   private function _postCurl($url, $params = array(), $headers= array(), $auth = array())
   {
@@ -381,6 +383,8 @@ class Oauth2Client
    *
    * @param string $url the api url to request
    * @return array the json response from the api call
+   *
+   * @deprecated Use Shapeways\Oauth2Client::_get()
    */
   private function _getCurl($url)
   {
