@@ -30,7 +30,7 @@ class Oauth2Client
    * @var string $clientId
    * @var string $clientSecret
    */
-  private $clientId, $clientSecret;
+  protected $clientId, $clientSecret;
 
   /**
    * @var string $accessToken the oauth token used for requests
@@ -278,13 +278,15 @@ class Oauth2Client
   }
 
   /**
-   * @param $url
+   * @param       $url
    * @param array $params
    * @param array $headers
    * @param array $auth
+   *
    * @return mixed
+   * @throws \GuzzleHttp\Exception\GuzzleException
    */
-  private function _post($url, $params = array(), $headers = array(), $auth = array()) {
+  protected function _post($url, $params = array(), $headers = array(), $auth = array()) {
     $url = $this->urlWithParameters($url);
     $client = new \GuzzleHttp\Client();
     if (array_key_exists('Content-type', $headers) && $headers['Content-type'] == 'application/json') {
