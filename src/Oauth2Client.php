@@ -305,7 +305,15 @@ class Oauth2Client
 
     $postOptions['verify'] = false;
 
-    $res = $client->request('post', $url, $postOptions);
+    try {
+      $res = $client->request('post', $url, $postOptions);
+    } catch (\GuzzleHttp\Exception\ClientException $e) {
+      $response = $e->getResponse();
+      $responseBodyAsString = $response->getBody()->getContents();
+      return json_decode($responseBodyAsString);
+    } catch (\Exception $e) {
+      return json_encode($e->getMessage());
+    }
 
     //echo $res->getStatusCode(); // "200"
     //echo $res->getHeader('content-type'); // 'application/json; charset=utf8'
@@ -329,6 +337,10 @@ class Oauth2Client
           'Content-type' =>  'application/json'
         )
       ));
+    } catch (\GuzzleHttp\Exception\ClientException $e) {
+      $response = $e->getResponse();
+      $responseBodyAsString = $response->getBody()->getContents();
+      return json_decode($responseBodyAsString);
     } catch (\Exception $e) {
       return json_encode($e->getMessage());
     }
